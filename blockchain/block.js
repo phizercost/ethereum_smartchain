@@ -74,10 +74,12 @@ class Block {
   }
 
   static validateBlock({ lastBlock, block }) {
-    if (keccakHash(block) === keccakHash(Block.genesis())) {
-      return resolve();
-    }
     return new Promise((resolve, reject) => {
+      //Check if block is genesis and resolve
+      if (keccakHash(block) === keccakHash(Block.genesis())) {
+        return resolve();
+      }
+
       //Check if the headers were not manipulated
       if (
         keccakHash(lastBlock.blockHeaders) !== block.blockHeaders.parentHash

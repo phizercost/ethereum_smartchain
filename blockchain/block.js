@@ -1,7 +1,7 @@
-const { GENESIS_DATA } = require("../config");
-const { keccakHash } = require("../util");
+const { GENESIS_DATA, MINE_RATE } = require('../config');
+const { keccakHash } = require('../util');
 const HASH_LENGTH = 64;
-const MAX_HASH_VALUE = parseInt("f".repeat(HASH_LENGTH), 16);
+const MAX_HASH_VALUE = parseInt('f'.repeat(HASH_LENGTH), 16);
 const MAX_NONCE_VALUE = 2 ** 64;
 
 class Block {
@@ -10,18 +10,28 @@ class Block {
   }
 
   static calculateBlockTargetHash({ lastBlock }) {
-    const value = (MAX_HASH_VALUE / lastBlock.blockHeaders.difficulty).toString(
-      16
-    );
+    const value = (MAX_HASH_VALUE / lastBlock.blockHeaders.difficulty).toString(16);
 
     if (value.length > HASH_LENGTH) {
       //Internal to JavaScript, the MAX_HASH_VALUE is a big number which through conversion ends up adding an additional character.
       //The risk here is to end up having a Hash of 65 characters. So in the worst case scenario we will return the highest value of the hexadeximal 'f' repeated 64 times
-      return "f".repeat(HASH_LENGTH);
+      return 'f'.repeat(HASH_LENGTH);
     }
     //As we are dividing the MAX_HASH_VALUE with the difficulty, the more difficult the level becomes the smaller will the target hash become
     //With a risk of having the length of the target hash smaller than 64 characters
-    return "0".repeat(HASH_LENGTH - value.length) + value;
+    return '0'.repeat(HASH_LENGTH - value.length) + value;
+  }
+
+  static adjustDifficulty({lastBlock, timestamp}) {
+    const  {difficulty}  = lastBlock.blockHeaders;
+    if ((timestamp - lastBlock.blockHeaders.timestamp) > MINE_RATE) {
+      return difficulty - 1;
+    }
+
+    if (difficulty < 1) {
+      return 1;
+    }
+    return difficulty + 1;
   }
 
   static mineBlock({ lastBlock, beneficiary }) {
@@ -38,7 +48,7 @@ class Block {
       truncatedBlockHeaders = {
         parentHash: keccakHash(lastBlock.blockHeaders),
         beneficiary,
-        difficulty: lastBlock.blockHeaders.difficulty + 1,
+        difficulty: Block.adjustDifficulty({ lastBlock, timestamp }),
         number: lastBlock.blockHeaders.number + 1,
         timestamp
       };
@@ -63,9 +73,3 @@ class Block {
 }
 
 module.exports = Block;
-
-const block = Block.mineBlock({
-  lastBlock: Block.genesis(),
-  beneficiary: "foo"
-});
-

@@ -49,9 +49,6 @@ class Block {
       underTargetHash = keccakHash(header + nonce);
     } while (underTargetHash > target);
 
-    console.log("underTargetHash", underTargetHash);
-    console.log("target", target);
-
     return new this({
       blockHeaders: {
         ...truncatedBlockHeaders,
@@ -72,4 +69,3 @@ const block = Block.mineBlock({
   beneficiary: "foo"
 });
 
-console.log("block", block);

@@ -1,10 +1,10 @@
 const GENESIS_DATA = {
   blockHeaders: {
-    parentHas: "--genesis-parent-hash--",
-    beneficiary: "--genesis-beneficiary--",
+    parentHas: '--genesis-parent-hash--',
+    beneficiary: '--genesis-beneficiary--',
     difficulty: 1,
     number: 0,
-    timestamp: "--genesis-timestamp--",
+    timestamp: '--genesis-timestamp--',
     nonce: 0
   }
 };

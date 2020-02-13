@@ -12,8 +12,8 @@ class Blockchain {
         block
       }).then(() => {
         this.chain.push(block);
-        return resolve();
-      }).catch((error => reject(error)));
+        return resolve(); 
+      }).catch(reject);
     });
 
     this.chain.push(block);

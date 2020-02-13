@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --watchAll",
     "start": "node ./api",
-    "dev": "nodemon ./api"
+    "dev": "nodemon ./api",
+    "dev-peer": "nodemon ./api --peer"
   },
   "keywords": [],
   "author": "",

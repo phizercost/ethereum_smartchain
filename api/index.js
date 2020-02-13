@@ -1,4 +1,5 @@
 const express = require("express");
+const bodyParser = require("body-parser");
 const request = require("request");
 const Account = require("../account");
 const Blockchain = require("../blockchain");
@@ -8,6 +9,7 @@ const Transaction = require("../transaction");
 const TransactionQueue = require("../transaction/transaction-queue");
 
 const app = express();
+app.use(bodyParser.json());
 const blockchain = new Blockchain();
 const transactionQueue = new TransactionQueue();
 const pubsub = new PubSub({ blockchain });
@@ -35,6 +37,18 @@ app.get("/blockchain/mine", (req, res, next) => {
     .catch(next);
 });
 
+app.post('/account/transact', (req, res, next) => {
+  const { to, value } = req.body;
+  const transaction = Transaction.createTransaction({
+    account: !to ? new Account() : account,
+    to,
+    value
+  });
+ 
+  transactionQueue.add(transaction);
+
+  res.json({ transaction });
+});
 app.use((err, req, res, next) => {
   console.error("Internal server error:", err);
 

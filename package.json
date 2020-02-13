@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "api-test": "node ./api-test.js",
     "test": "jest --watchAll",
     "start": "node ./api",
     "dev": "nodemon ./api",
@@ -16,6 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "elliptic": "^6.5.2",
     "express": "^4.17.1",
     "jest": "^25.1.0",

@@ -9,10 +9,14 @@
     "dev": "nodemon ./api",
     "dev-peer": "nodemon ./api --peer"
   },
+  "jest":{
+      "testEnvironment": "node"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "elliptic": "^6.5.2",
     "express": "^4.17.1",
     "jest": "^25.1.0",
     "js-sha3": "^0.8.0",

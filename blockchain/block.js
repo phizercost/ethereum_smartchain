@@ -37,7 +37,7 @@ class Block {
     return difficulty + 1;
   }
 
-  static mineBlock({ lastBlock, beneficiary, transactionSeries }) {
+  static mineBlock({ lastBlock, beneficiary, transactionSeries, stateRoot }) {
     const target = Block.calculateBlockTargetHash({ lastBlock });
 
     let timestamp, truncatedBlockHeaders, header, nonce, underTargetHash;
@@ -58,7 +58,8 @@ class Block {
         /*
         Not final. will be refactored once tries are implemented
         */
-        transactionRoot: keccakHash(transactionSeries)
+        transactionRoot: keccakHash(transactionSeries),
+        stateRoot
       };
 
       header = keccakHash(truncatedBlockHeaders);

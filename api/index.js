@@ -5,11 +5,14 @@ const Account = require("../account");
 const Blockchain = require("../blockchain");
 const Block = require("../blockchain/block");
 const PubSub = require("./pubsub");
+const State = require("../store/state");
 const Transaction = require("../transaction");
 const TransactionQueue = require("../transaction/transaction-queue");
 
 const app = express();
 app.use(bodyParser.json());
+
+const state = new State();
 const blockchain = new Blockchain();
 const transactionQueue = new TransactionQueue();
 const pubsub = new PubSub({ blockchain, transactionQueue });
@@ -28,7 +31,12 @@ app.get("/blockchain", (req, res, next) => {
 
 app.get("/blockchain/mine", (req, res, next) => {
   const lastBlock = blockchain.chain[blockchain.chain.length - 1];
-  const block = Block.mineBlock({ lastBlock, beneficiary: account.address, transactionSeries: transactionQueue.getTransactionSeries() });
+  const block = Block.mineBlock({
+    lastBlock,
+    beneficiary: account.address,
+    transactionSeries: transactionQueue.getTransactionSeries(),
+    stateRoot: state.getStateRoot()
+  });
 
   blockchain
     .addBlock({ block, transactionQueue })

@@ -1,6 +1,6 @@
 const { GENESIS_DATA, MINE_RATE } = require("../config");
 const { keccakHash } = require("../util");
-const Transaction = require('../transaction')
+const Transaction = require("../transaction");
 const HASH_LENGTH = 64;
 const MAX_HASH_VALUE = parseInt("f".repeat(HASH_LENGTH), 16);
 const MAX_NONCE_VALUE = 2 ** 64;
@@ -28,7 +28,7 @@ class Block {
 
   static adjustDifficulty({ lastBlock, timestamp }) {
     const { difficulty } = lastBlock.blockHeaders;
-    if ((timestamp - lastBlock.blockHeaders.timestamp) > MINE_RATE) {
+    if (timestamp - lastBlock.blockHeaders.timestamp > MINE_RATE) {
       return difficulty - 1;
     }
 
@@ -73,7 +73,8 @@ class Block {
       blockHeaders: {
         ...truncatedBlockHeaders,
         nonce
-      }, transactionSeries
+      },
+      transactionSeries
     });
   }
 
@@ -81,7 +82,7 @@ class Block {
     return new Block(GENESIS_DATA);
   }
 
-  static validateBlock({ lastBlock, block }) {
+  static validateBlock({ lastBlock, block, state }) {
     return new Promise((resolve, reject) => {
       //Check if block is genesis and resolve
       if (keccakHash(block) === keccakHash(Block.genesis())) {
@@ -124,13 +125,20 @@ class Block {
         );
       }
 
+      Transaction.validateTransactionSeries({
+        state,
+        transactionSeries: block.transactionSeries
+      })
+        .then(resolve)
+        .catch(reject);
+
       return resolve();
     });
   }
 
-  static runBlock({block, state}){
-    for(let transaction of block.transactionSeries) {
-      Transaction.runTransaction({transaction, state});
+  static runBlock({ block, state }) {
+    for (let transaction of block.transactionSeries) {
+      Transaction.runTransaction({ transaction, state });
     }
   }
 }

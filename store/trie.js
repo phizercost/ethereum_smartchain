@@ -35,11 +35,12 @@ class Trie {
     let node = this.head;
 
     for (let character of key) {
-      if (node.childMap[character]) {
-        node = node.childMap[character];
+      if (!node.childMap[character]) {
+        node.childMap[character] = new Node();
       }
+      node = node.childMap[character];
     }
-
+    node.value = value;
     this.generateRootHash();
   }
 }

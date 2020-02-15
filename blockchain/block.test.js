@@ -130,5 +130,13 @@ describe("Block", () => {
 
       Block.calculateBlockTargetHash = originalCalculatedBlockeTargetHash;
     });
+
+    it('rejects when the transaction series is not valid', () => {
+      block.transactionSeries = ['foo'];
+
+      expect(Block.validateBlock({state, lastBlock, block})).rejects.toMatchObject({
+        message: /rebuild transactions root does not match/
+      })
+    })
   });
 });

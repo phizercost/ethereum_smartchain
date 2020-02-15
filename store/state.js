@@ -11,7 +11,8 @@ class State {
     }
 
     getAccount({address}){
-        this.stateTrie.generateRootHash({key: address});
+        // this.stateTrie.generateRootHash({key: address});
+        return this.stateTrie.get({ key: address });
     }
 
     getStateRoot(){

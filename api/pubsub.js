@@ -18,11 +18,11 @@ class PubSub {
     this.pubnub = new PubNub(credentials);
     this.blockchain = blockchain;
     this.transactionQueue = transactionQueue;
-    this.subscriberToChannels();
+    this.subscribeToChannels();
     this.listen();
   }
 
-  subscriberToChannels() {
+  subscribeToChannels() {
     this.pubnub.subscribe({
       channels: Object.values(CHANNELS_MAP)
     });
@@ -48,7 +48,7 @@ class PubSub {
               .catch(error =>
                 console.error("New block rejected:", error.message)
               );
-            break;
+            break; 
           case CHANNELS_MAP.TRANSACTION:
             console.log(`Received transaction:${parsedMessage.id}`);
             this.transactionQueue.add(new Transaction(parsedMessage));

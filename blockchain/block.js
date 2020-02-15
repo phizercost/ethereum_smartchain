@@ -1,5 +1,6 @@
 const { GENESIS_DATA, MINE_RATE } = require("../config");
 const { keccakHash } = require("../util");
+const Transaction = require('../transaction')
 const HASH_LENGTH = 64;
 const MAX_HASH_VALUE = parseInt("f".repeat(HASH_LENGTH), 16);
 const MAX_NONCE_VALUE = 2 ** 64;
@@ -27,7 +28,7 @@ class Block {
 
   static adjustDifficulty({ lastBlock, timestamp }) {
     const { difficulty } = lastBlock.blockHeaders;
-    if (timestamp - lastBlock.blockHeaders.timestamp > MINE_RATE) {
+    if ((timestamp - lastBlock.blockHeaders.timestamp) > MINE_RATE) {
       return difficulty - 1;
     }
 
@@ -77,7 +78,7 @@ class Block {
   }
 
   static genesis() {
-    return new this(GENESIS_DATA);
+    return new Block(GENESIS_DATA);
   }
 
   static validateBlock({ lastBlock, block }) {
@@ -125,6 +126,12 @@ class Block {
 
       return resolve();
     });
+  }
+
+  static runBlock({block, state}){
+    for(let transaction of block.transactionSeries) {
+      Transaction.runTransaction({transaction, state});
+    }
   }
 }
 

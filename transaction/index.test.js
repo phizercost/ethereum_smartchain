@@ -25,7 +25,7 @@ describe('Transaction', () => {
         })
 
         it('does validates a malformed transaction', () => {
-            standardTransaction.value = 100;
+            standardTransaction.to = 'different-recipient';
             expect(Transaction.validateStandardTransaction({
                 transaction: standardTransaction
             })).rejects.toMatchObject({message: /invalid/});

@@ -1,5 +1,5 @@
-const {keccakHash} = require('../util');
-const _ = require('lodash');
+const { keccakHash } = require("../util");
+const _ = require("lodash");
 
 class Node {
   constructor() {
@@ -11,33 +11,34 @@ class Node {
 class Trie {
   constructor() {
     this.head = new Node();
-    this.generateRootHash()
+    this.generateRootHash();
   }
 
-  generateRootHash(){
-      this.rootHash = keccakHash(this.head);
+  generateRootHash() {
+    this.rootHash = keccakHash(this.head);
   }
   get({ key }) {
-      let node = this.head;
+    let node = this.head;
 
-      for(let char of key){
-          if(node.childMap[char]){
-              node= node.childMap[char]
-          }
+    for (let character of key) {
+      if (!node.childMap[character]) {
+        return null;
+      } else {
+        node = node.childMap[character];
       }
-      return _.cloneDeep(node.value);
+    }
+    //Helps to get a consistent hash even when the value of the data has changed
+    return _.cloneDeep(node.value);
   }
 
   put({ key, value }) {
     let node = this.head;
 
-    for (let char of key) {
-      if (!node.childMap[char]) {
-          node.childMap[char] = new Node();
+    for (let character of key) {
+      if (node.childMap[character]) {
+        node = node.childMap[character];
       }
-      node = node.childMap[char];
     }
-    node.value = value;
 
     this.generateRootHash();
   }

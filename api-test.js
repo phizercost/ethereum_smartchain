@@ -38,7 +38,7 @@ const getAccountBalance = ({ address } = {}) => {
   });
 }
 
-let toAccountData;
+let toAccountData, smartContractAccountData;
 
 postTransact({})
   .then(postTransactResponse => {
@@ -67,10 +67,22 @@ postTransact({})
 
   }).then(postTransactResponse3 => {
     console.log('postTransactResponse3 (Smart Contract)', postTransactResponse3);
+
+    smartContractAccountData = postTransactResponse3.transaction.data.accountData;
     return getMine();
   })
   .then(getMineResponse2 => {
     console.log('getMineResponse2', getMineResponse2);
+
+    return postTransact({to: smartContractAccountData.codeHash, value: 0});
+  }).then(postTransactResponse4 => {
+    console.log('postTransactResponse4 (to the Smart Contract)', postTransactResponse4);
+
+    return getMine();
+  })
+  .then(getMineResponse3 => {
+    console.log('getMineResponse3', getMineResponse3);
+  
 
     return getAccountBalance();
   })

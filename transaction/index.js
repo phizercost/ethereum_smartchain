@@ -81,7 +81,9 @@ class Transaction {
       }
 
       if(toAccount.codeHash){
-        const {gasUsed}  = new Interpreter().runCode(toAccount.code);
+        const {gasUsed}  = new Interpreter({
+          storageTrie: state.storageTrieMap[toAccount.codeHash]
+        }).runCode(toAccount.code);
 
         if (gasUsed > gasLimit){
           return reject(new Error(`Transaction needs more gas. Provided: ${gasLimit}. Needs:${gasUsed}`));
@@ -188,8 +190,10 @@ class Transaction {
     let result;
 
     if(toAccount.codeHash){
-      const interpreter = new Interpreter();
-      ({result, gasUsed }  = interpreter.runCode(toAccount.code));
+      const interpreter = new Interpreter({
+        storageTrie: state.storageTrieMap[toAccount.codeHash]
+      });
+      ({ gasUsed, result }  = interpreter.runCode(toAccount.code));
       console.log(`-*- Smart contract execution:${transaction.id} - RESULT: ${result}`);
     }
 

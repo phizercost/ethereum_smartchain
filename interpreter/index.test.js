@@ -1,4 +1,5 @@
-const Interpreter = require('./index');
+const Interpreter = require("./index");
+const Trie = require("../store/trie");
 const {
   STOP,
   ADD,
@@ -13,84 +14,86 @@ const {
   AND,
   OR,
   JUMP,
-  JUMPI
+  JUMPI,
+  STORE,
+  LOAD
 } = Interpreter.OPCODE_MAP;
 
-describe('Interpreter', () => {
-  describe('runCode()', () => {
-    describe('and the code includes ADD', () => {
-      it('adds two values', () => {
+describe("Interpreter", () => {
+  describe("runCode()", () => {
+    describe("and the code includes ADD", () => {
+      it("adds two values", () => {
         expect(
           new Interpreter().runCode([PUSH, 2, PUSH, 3, ADD, STOP]).result
         ).toEqual(5);
       });
     });
 
-    describe('and the code includes SUB', () => {
-      it('subtracts one value from another', () => {
+    describe("and the code includes SUB", () => {
+      it("subtracts one value from another", () => {
         expect(
           new Interpreter().runCode([PUSH, 2, PUSH, 3, SUB, STOP]).result
         ).toEqual(1);
       });
     });
-    describe('and the code includes MUL', () => {
-      it('multiples one value with another', () => {
+    describe("and the code includes MUL", () => {
+      it("multiples one value with another", () => {
         expect(
           new Interpreter().runCode([PUSH, 2, PUSH, 3, MUL, STOP]).result
         ).toEqual(6);
       });
     });
 
-    describe('and the code includes DIV', () => {
-      it('divides one value from another', () => {
+    describe("and the code includes DIV", () => {
+      it("divides one value from another", () => {
         expect(
           new Interpreter().runCode([PUSH, 2, PUSH, 3, DIV, STOP]).result
         ).toEqual(1.5);
       });
     });
 
-    describe('and the code includes LT', () => {
-      it('checks if one value is less than another', () => {
-        expect(new Interpreter().runCode([PUSH, 2, PUSH, 3, LT, STOP]).result).toEqual(
-          0
-        );
+    describe("and the code includes LT", () => {
+      it("checks if one value is less than another", () => {
+        expect(
+          new Interpreter().runCode([PUSH, 2, PUSH, 3, LT, STOP]).result
+        ).toEqual(0);
       });
     });
 
-    describe('and the code includes GT', () => {
-      it('checks if one value is greater than another', () => {
-        expect(new Interpreter().runCode([PUSH, 2, PUSH, 3, GT, STOP]).result).toEqual(
-          1
-        );
+    describe("and the code includes GT", () => {
+      it("checks if one value is greater than another", () => {
+        expect(
+          new Interpreter().runCode([PUSH, 2, PUSH, 3, GT, STOP]).result
+        ).toEqual(1);
       });
     });
 
-    describe('and the code includes EQ', () => {
-      it('divides one value from another', () => {
-        expect(new Interpreter().runCode([PUSH, 2, PUSH, 3, EQ, STOP]).result).toEqual(
-          0
-        );
+    describe("and the code includes EQ", () => {
+      it("divides one value from another", () => {
+        expect(
+          new Interpreter().runCode([PUSH, 2, PUSH, 3, EQ, STOP]).result
+        ).toEqual(0);
       });
     });
 
-    describe('and the code includes AND', () => {
-      it('and two conditions', () => {
+    describe("and the code includes AND", () => {
+      it("and two conditions", () => {
         expect(
           new Interpreter().runCode([PUSH, 1, PUSH, 0, AND, STOP]).result
         ).toEqual(0);
       });
     });
 
-    describe('and the code includes OR', () => {
-      it('divides one value from another', () => {
-        expect(new Interpreter().runCode([PUSH, 1, PUSH, 0, OR, STOP]).result).toEqual(
-          1
-        );
+    describe("and the code includes OR", () => {
+      it("divides one value from another", () => {
+        expect(
+          new Interpreter().runCode([PUSH, 1, PUSH, 0, OR, STOP]).result
+        ).toEqual(1);
       });
     });
 
-    describe('and the code includes JUMP', () => {
-      it('jumps to a destination', () => {
+    describe("and the code includes JUMP", () => {
+      it("jumps to a destination", () => {
         expect(
           new Interpreter().runCode([
             PUSH,
@@ -100,15 +103,15 @@ describe('Interpreter', () => {
             0,
             JUMP,
             PUSH,
-            'Jump successful',
+            "Jump successful",
             STOP
           ]).result
-        ).toEqual('Jump successful');
+        ).toEqual("Jump successful");
       });
     });
 
-    describe('and the code includes JUMPI', () => {
-      it('jumps to a destination', () => {
+    describe("and the code includes JUMPI", () => {
+      it("jumps to a destination", () => {
         expect(
           new Interpreter().runCode([
             PUSH,
@@ -120,15 +123,15 @@ describe('Interpreter', () => {
             0,
             JUMP,
             PUSH,
-            'Jump successful',
+            "Jump successful",
             STOP
           ]).result
-        ).toEqual('Jump successful');
+        ).toEqual("Jump successful");
       });
     });
 
-    describe('and the code includes an invalid jump destination', () => {
-      it('throws an error', () => {
+    describe("and the code includes an invalid jump destination", () => {
+      it("throws an error", () => {
         () =>
           expect(
             new Interpreter().runCode([
@@ -139,15 +142,54 @@ describe('Interpreter', () => {
               0,
               JUMP,
               PUSH,
-              'Jump successful',
+              "Jump successful",
               STOP
             ]).result
-          ).toThrow('Invalid destination: PUSH');
+          ).toThrow("Invalid destination: PUSH");
       });
     });
 
-    describe('and the code includes an invalid jump value', () => {
-      it('throws an error', () => {
+    describe("and the code includes STORE", () => {
+      it("stores a value", () => {
+        const interpreter = new Interpreter({
+          storageTrie: new Trie()
+        });
+        const key = "foo";
+        const value = "bar";
+
+        interpreter.runCode([PUSH, value, PUSH, key, STORE, STOP]);
+        expect(interpreter.storageTrie.get({ key })).toEqual(value);
+      });
+    });
+
+    describe("and the code includes LOAD", () => {
+      it("loads a stored value", () => {
+        const interpreter = new Interpreter({
+          storageTrie: new Trie()
+        });
+        const key = "foo";
+        const value = "bar";
+
+        expect(
+          interpreter
+            .runCode(
+              [
+                PUSH,
+                value,
+                PUSH,
+                key,
+                STORE,
+                PUSH,
+                key,
+                LOAD,
+                STOP
+              ]).result
+        ).toEqual(value);
+      });
+    });
+
+    describe("and the code includes an invalid jump value", () => {
+      it("throws an error", () => {
         () =>
           expect(new Interpreter().runCode([PUSH, 0, PUSH])).toThrow(
             'The "PUSH" instruction cannot be last.'
@@ -155,11 +197,11 @@ describe('Interpreter', () => {
       });
     });
 
-    describe('and the code includes an infinite loop', () => {
-      it('throws an error', () => {
+    describe("and the code includes an infinite loop", () => {
+      it("throws an error", () => {
         () =>
           expect(new Interpreter().runCode([PUSH, 0, JUMP, STOP])).toThrow(
-            'Check for an infinite loop. Execution limit of 10000 exceeded'
+            "Check for an infinite loop. Execution limit of 10000 exceeded"
           );
       });
     });

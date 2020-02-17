@@ -1,25 +1,29 @@
-const Trie = require('./trie');
+const Trie = require("./trie");
 
 class State {
-    constructor(){
-        this.stateTrie = new Trie();
+  constructor() {
+    this.stateTrie = new Trie();
+    this.storageTrieMap = {};
+  }
+
+  putAccount({ address, accountData }) {
+    if (!this.storageTrieMap[address]) {
+      this.storageTrieMap[address] = new Trie();
     }
+    this.stateTrie.put({
+      key: address,
+      value: { ...accountData, storageRoot: this.storageTrieMap[address].rootHash }
+    });
+  }
 
+  getAccount({ address }) {
+    // this.stateTrie.generateRootHash({key: address});
+    return this.stateTrie.get({ key: address });
+  }
 
-    putAccount({address, accountData}){
-        this.stateTrie.put({key: address, value: accountData})
-    }
-
-    getAccount({address}){
-        // this.stateTrie.generateRootHash({key: address});
-        return this.stateTrie.get({ key: address });
-    }
-
-    getStateRoot(){
-        return this.stateTrie.rootHash;
-    }
-
-
+  getStateRoot() {
+    return this.stateTrie.rootHash;
+  }
 }
 
 module.exports = State;

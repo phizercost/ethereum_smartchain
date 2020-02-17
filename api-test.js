@@ -5,7 +5,8 @@ const {STOP, ADD, PUSH} =  OPCODE_MAP;
 
 const BASE_URL = 'http://localhost:3000';
 
-const postTransact = ({ code, to, value }) => {
+const postTransact = ({ code, to, value, gasLimit
+ }) => {
   return new Promise((resolve, reject) => {
     request(`${BASE_URL}/account/transact`, {
       method: 'POST',
@@ -74,7 +75,7 @@ postTransact({})
   .then(getMineResponse2 => {
     console.log('getMineResponse2', getMineResponse2);
 
-    return postTransact({to: smartContractAccountData.codeHash, value: 0});
+    return postTransact({to: smartContractAccountData.codeHash, value: 0, gasLimit: 100});
   }).then(postTransactResponse4 => {
     console.log('postTransactResponse4 (to the Smart Contract)', postTransactResponse4);
 

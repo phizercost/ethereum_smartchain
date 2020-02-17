@@ -79,6 +79,38 @@ describe("Transaction", () => {
         })
       ).rejects.toMatchObject({ message: /does not exist/ });
     });
+
+    it("does not validate when the gasLimit exceeds the balance", () => {
+      standardTransaction = Transaction.createTransaction({
+        account,
+        to: "Matata",
+        gasLimit: 10000
+      });
+      expect(
+        Transaction.validateStandardTransaction({
+          transaction: standardTransaction,
+          state
+        })
+      ).rejects.toMatchObject({ message: /exceeds/ });
+    });
+
+    it("does not validate when the gasUsed exceeds the gasLimit", () => {
+      const codeHash = "xxxxxx";
+      const code = ["PUSH", 1, "PUSH", 2, "ADD", "STOP"];
+      state.putAccount({ address: codeHash, accountData: { code, codeHash } });
+
+      standardTransaction = Transaction.createTransaction({
+        account,
+        to: codeHash,
+        gasLimit: 0
+      });
+      expect(
+        Transaction.validateStandardTransaction({
+          transaction: standardTransaction,
+          state
+        })
+      ).rejects.toMatchObject({ message: /Transaction needs more gas/ });
+    });
   });
 
   describe("validateCreateAccountTransaction", () => {
@@ -101,16 +133,20 @@ describe("Transaction", () => {
 
   describe("validateMiningRewardTransaction()", () => {
     it("validates a mining reward transaction", () => {
-        expect(Transaction.validateMiningRewardTransaction({
-            transaction: miningRewardTransaction
-        })).resolves;
+      expect(
+        Transaction.validateMiningRewardTransaction({
+          transaction: miningRewardTransaction
+        })
+      ).resolves;
     });
 
     it("does not validate a tempered with mining reward transaction", () => {
-        miningRewardTransaction.value = 3;
-        expect(Transaction.validateMiningRewardTransaction({
-            transaction: miningRewardTransaction
-        })).rejects.toMatchObject({message: /does not equal/});
+      miningRewardTransaction.value = 3;
+      expect(
+        Transaction.validateMiningRewardTransaction({
+          transaction: miningRewardTransaction
+        })
+      ).rejects.toMatchObject({ message: /does not equal/ });
     });
   });
 });
